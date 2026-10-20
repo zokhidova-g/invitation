@@ -65,6 +65,24 @@ button{font:inherit;cursor:pointer}
 .arch{height:min(46vh,400px);aspect-ratio:3/4;border-radius:999px 999px 22px 22px;overflow:hidden;border:3px solid var(--paper);outline:1.5px solid var(--gold);outline-offset:5px;box-shadow:var(--sh);margin:16px 0 14px;flex-shrink:0}
 .arch img{width:100%;height:100%;object-fit:cover;display:block}
 .sm{height:min(36vh,310px)}
+.mus{position:absolute;top:14px;right:14px;z-index:6;width:40px;height:40px;border-radius:50%;border:1px solid var(--gold);background:var(--paper);color:var(--gold);font-size:1.05rem;display:none;align-items:center;justify-content:center;box-shadow:var(--sh)}
+#env{position:absolute;inset:0;z-index:50;overflow:hidden;cursor:pointer;-webkit-user-select:none}
+.fp{position:absolute;inset:0;transition:transform 1.05s cubic-bezier(.7,0,.2,1)}
+.f1{clip-path:polygon(0 0,100% 0,50% 50%);background:linear-gradient(#e3a8a4,#ecbab5)}
+.f2{clip-path:polygon(0 100%,100% 100%,50% 50%);background:linear-gradient(#dca09c,#d39490)}
+.f3{clip-path:polygon(0 0,50% 50%,0 100%);background:linear-gradient(90deg,#f0bfba,#e8b1ac)}
+.f4{clip-path:polygon(100% 0,100% 100%,50% 50%);background:linear-gradient(270deg,#ebb4af,#e2a8a3)}
+.tex{position:absolute;inset:0;pointer-events:none;opacity:.4;mix-blend-mode:multiply;transition:opacity .5s;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3'/><feColorMatrix values='0 0 0 0 .75 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.ln{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transition:opacity .4s}
+.sw{position:absolute;left:50%;top:50%;width:0;height:0}
+.seal{position:absolute;left:-66px;top:-66px;width:132px;height:132px;border-radius:48% 52% 51% 49%/52% 47% 53% 48%;background:radial-gradient(circle at 35% 30%,#f6cdc8,#e0a09d 55%,#c98384);box-shadow:0 8px 18px rgba(110,45,50,.4),inset 0 2px 6px rgba(255,255,255,.5),inset 0 -4px 8px rgba(120,50,55,.3);display:flex;align-items:center;justify-content:center;animation:sp 2s ease-in-out infinite}
+.seal i{width:98px;height:98px;border-radius:50%;border:2px dotted rgba(140,65,70,.55);box-shadow:inset 0 0 0 5px rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:3.1rem;color:#d0898b;text-shadow:-1px -1px 1px rgba(255,255,255,.55),1px 2px 2px rgba(120,50,55,.5)}
+@keyframes sp{50%{transform:scale(1.06)}}
+.eh{position:absolute;bottom:9%;left:0;right:0;text-align:center;font-size:.72rem;letter-spacing:.32em;color:#fff;text-shadow:0 1px 6px rgba(120,50,55,.6);transition:opacity .3s;animation:nudge2 2s ease-in-out infinite}
+@keyframes nudge2{50%{opacity:.55}}
+#env.open .f1{transform:translateY(-101%)}#env.open .f2{transform:translateY(101%)}#env.open .f3{transform:translateX(-101%)}#env.open .f4{transform:translateX(101%)}
+#env.open .tex,#env.open .ln,#env.open .eh{opacity:0}
+#env.open .seal{animation:none;transform:scale(1.6);opacity:0;transition:transform .5s,opacity .45s}
 </style>
 </head>
 <body>
@@ -118,11 +136,20 @@ button{font:inherit;cursor:pointer}
 
  <div class="hint" id="hint">SURTING YOKI BOSING →</div>
  <div class="dots" id="dots"></div>
+ <button class="mus" id="mus" aria-label="Musiqa">🔇</button>
+ <div id="env" role="button" aria-label="Taklifnomani ochish">
+  <div class="fp f1"></div><div class="fp f2"></div><div class="fp f3"></div><div class="fp f4"></div>
+  <svg class="ln" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 0L50 50L100 0M0 100L50 50L100 100" stroke="rgba(255,255,255,.4)" stroke-width=".35" fill="none" vector-effect="non-scaling-stroke"/><path d="M0 0L50 50M100 0L50 50M0 100L50 50M100 100L50 50" stroke="rgba(130,60,65,.25)" stroke-width="1.2" fill="none" vector-effect="non-scaling-stroke" transform="translate(.3 .3)"/></svg>
+  <div class="tex"></div>
+  <div class="sw"><div class="seal"><i>⚜&#xFE0E;</i></div></div>
+  <div class="eh">OCHISH UCHUN BOSING</div>
+ </div>
 </div>
 
 <div class="ov" id="ov"><div class="modal"><button class="x" id="x" aria-label="Yopish">✕</button>
 <div class="fail">❌ OQ KO’YLAK</div><div class="cap" style="font-weight:500">SIZ YIQILDINGIZ.</div><em>Taklifimizni bekor qildik. Oq?! Mening to’yimdami?!</em>
 <div class="mrow"><button class="m1" disabled>GUEST STATUS: BEKOR QILINDI</button><button class="m2" id="retry">QAYTADAN URINIB KO’RISH</button></div></div></div>
+<audio id="bgm" src="music.mp3" loop preload="auto"></audio>
 <canvas id="c"></canvas>
 
 <script>
@@ -142,6 +169,7 @@ function go(n){
 var sx=0,sy=0;
 st.addEventListener("pointerdown",function(e){sx=e.clientX;sy=e.clientY});
 st.addEventListener("pointerup",function(e){
+  if(document.getElementById("env"))return;
   var dx=e.clientX-sx,dy=e.clientY-sy,last=cur===S.length-1;
   if(last&&started)return;
   if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)){go(dx<0?cur+1:cur-1);return}
@@ -190,6 +218,21 @@ function confetti(){
   function tick(){var d=t-Date.now();if(d<=0){el.textContent="Bugun to’y kuni! 💍";return}
     el.innerHTML=[["Kun",864e5],["Soat",36e5],["Daqiqa",6e4],["Soniya",1e3]].map(function(p){var n=Math.floor(d/p[1]);d-=n*p[1];return"<div><b>"+n+"</b><small>"+p[0]+"</small></div>"}).join("")}
   tick();setInterval(tick,1000);
+})();
+(function(){
+  var a=document.getElementById("bgm"),b=document.getElementById("mus");
+  a.volume=.5;
+  function ui(){b.textContent=a.paused?"🔇":"🔊"}
+  a.addEventListener("canplay",function(){b.style.display="flex"});
+  a.addEventListener("play",ui);a.addEventListener("pause",ui);
+  b.addEventListener("click",function(){if(a.paused){a.play().catch(function(){})}else{a.pause()}});
+  function first(e){if(e.target.closest&&e.target.closest("#mus"))return;a.play().catch(function(){})}
+  document.addEventListener("pointerdown",first,{once:true});
+  document.addEventListener("keydown",first,{once:true});
+})();
+(function(){
+  var e=document.getElementById("env"),o=false;
+  e.addEventListener("click",function(){if(o)return;o=true;e.classList.add("open");setTimeout(function(){e.remove()},1300)});
 })();
 start();go(0);
 </script>
